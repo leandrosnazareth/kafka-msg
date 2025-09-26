@@ -22,10 +22,10 @@ public class SmsService {
         return smsRepository.save(sms);
     }
 
-    public Sms enviarSmsComEsperaDeResposta(Sms mensagem) {
+    public String enviarSmsComEsperaDeResposta(Sms mensagem) {
         Sms smsEnviado = smsRepository.save(mensagem);
 
-        // verificar se o status do sms está como recebido repetir 30x com espera de 10s
+        // verificar se o status do sms está como recebido repetir 60x com espera de 5s
         for (int i = 0; i < 60; i++) {
             System.out.println("Verificando se o SMS foi respondido... Tentativa " + (i + 1));
             Sms recebido = this.findSmsById(smsEnviado.getId());
@@ -33,16 +33,19 @@ public class SmsService {
             if (recebido.getResposta() != null) {
                 recebido.setStatusSms(StatusSms.RESPONDIDO);
                 smsRepository.save(recebido);
-                break;
+                return recebido.getResposta();
             }
             try {
                 Thread.sleep(5000);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                Thread.currentThread().interrupt();
+                // interrompido -> tratar como não respondido
+                break;
             }
         }
 
-        return smsEnviado;
+        // não recebeu resposta dentro do tempo/ tentativas
+        return "-1";
     }
 
     public Sms enviarSmsSemEsperaDeResposta(Sms mensagem) {

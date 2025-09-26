@@ -22,7 +22,7 @@ public class SmsController {
 
     @PostMapping("/enviar-com-espera")
     public ResponseEntity<?> enviarSmsComEsperaDeResposta(@RequestBody Sms mensagem) {
-        Sms resultado = smsService.enviarSmsComEsperaDeResposta(mensagem);
+        String resultado = smsService.enviarSmsComEsperaDeResposta(mensagem);
         if (resultado != null) {
             return ResponseEntity.ok(resultado);
         }
